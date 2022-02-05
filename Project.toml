@@ -1,0 +1,7 @@
+name = "SparseTensors"
+uuid = "38ef35ee-5ab3-45b3-983e-85b37ba52cf3"
+authors = ["David Hong <dahong67@wharton.upenn.edu> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1.6"
