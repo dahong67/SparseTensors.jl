@@ -1,0 +1,134 @@
+## SparseTensorCOO: coordinate format
+
+@testset "constructor" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        inds = tuple.(inds...)
+        vals = Tv[1, 0, 10]
+        perm = sortperm(inds)
+        sinds, svals = inds[perm], vals[perm]
+
+        # SparseTensorCOO(dims, inds, vals) - sorted
+        A = SparseTensorCOO(dims, sinds, svals)
+        @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
+        @test A.dims === dims
+        @test A.inds === sinds && A.vals === svals
+
+        # SparseTensorCOO(dims, inds, vals) - unsorted
+        A = SparseTensorCOO(dims, inds, vals)
+        @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
+        @test A.dims === dims
+        @test A.inds == sinds && A.vals == svals
+
+        # check_Ti(dims, Ti)
+        @test_throws ArgumentError SparseTensorCOO{Tv,Ti,N}((-1, 3, 2)[1:N], sinds, svals)
+        if Ti !== Int
+            @test_throws ArgumentError SparseTensorCOO{Tv,Ti,N}((Int(typemax(Ti)) + 1, 3, 2)[1:N], sinds, svals)
+        end
+        if N >= 2
+            @test_throws ArgumentError SparseTensorCOO{Tv,Ti,N}((typemax(Int) ÷ 2, 3, 2)[1:N], sinds, svals)
+        end
+
+        # check_coo_buffers(inds, vals)
+        @test_throws ArgumentError SparseTensorCOO{Tv,Ti,N}(dims, sinds, svals[1:end-1])
+
+        # check_coo_inds(dims, inds) - index in bounds
+        if Ti <: Signed
+            badinds = (Ti[2, -1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+            badinds = sort(tuple.(badinds...))
+            @test_throws ArgumentError SparseTensorCOO{Tv,Ti,N}(dims, badinds, vals)
+        end
+        badinds = (Ti[2, 1, 6], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        badinds = sort(tuple.(badinds...))
+        @test_throws ArgumentError SparseTensorCOO{Tv,Ti,N}(dims, badinds, vals)
+
+        # check_coo_inds(dims, inds) - indices sorted
+        @test_throws ArgumentError SparseTensorCOO{Tv,Ti,N}(dims, inds, vals)
+
+        # check_coo_inds(dims, inds) - indices unique
+        @test_throws ArgumentError SparseTensorCOO{Tv,Ti,N}(dims, [sinds[1:1]; sinds], [svals[1:1]; svals])
+    end
+end
+
+## Minimal AbstractArray interface
+
+@testset "size" begin
+    @testset "N=$N" for N in 1:3
+        dims = (5, 3, 2)[1:N]
+        inds = ([2, 1, 4], [1, 3, 2], [1, 2, 1])[1:N]
+        vals = [1, 0, 10]
+        A = SparseTensorCOO(dims, tuple.(inds...), vals)
+
+        @test size(A) == dims
+        for k in 1:N
+            @test size(A, k) == dims[k]
+        end
+        @test size(A, N + 1) == 1
+    end
+end
+
+@testset "getindex" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        vals = Tv[1, 0, 10]
+        A = SparseTensorCOO(dims, tuple.(inds...), vals)
+
+        # in bounds
+        ind_stored    = (4, 2, 1)[1:N]
+        ind_notstored = (3, 2, 2)[1:N]
+        @test typeof(A[ind_stored...]) === Tv && A[ind_stored...] == Tv(10)
+        @test typeof(A[ind_notstored...]) === Tv && A[ind_notstored...] == zero(Tv)
+
+        # out of bounds
+        ind_out1 = (0, 1, 1)[1:N]
+        ind_out2 = (6, 3, 2)[1:N]
+        @test_throws BoundsError A[ind_out1...]
+        @test_throws BoundsError A[ind_out2...]
+    end
+end
+
+@testset "setindex!" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        inds = tuple.(inds...)
+        vals = Tv[1, 0, 10]
+        perm = sortperm(inds)
+        sinds, svals = inds[perm], vals[perm]
+
+        for val in [-4, 0]
+            # store new value in middle
+            ind = (3, 2, 2)[1:N]
+            A = SparseTensorCOO(dims, copy(inds), copy(vals))
+            A[ind...] = val
+            @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
+            @test A.dims === dims
+            @test A.inds == [sinds[1:2]; [ind]; sinds[3:end]] && A.vals == [svals[1:2]; [val]; svals[3:end]]
+
+            # store new value at end
+            ind = dims
+            A = SparseTensorCOO(dims, copy(inds), copy(vals))
+            A[ind...] = val
+            @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
+            @test A.dims === dims
+            @test A.inds == [sinds; [ind]] && A.vals == [svals; [val]]
+
+            # overwrite existing value
+            ind = (4, 2, 1)[1:N]
+            A = SparseTensorCOO(dims, copy(inds), copy(vals))
+            A[ind...] = val
+            @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
+            @test A.dims === dims
+            @test A.inds == sinds && A.vals == [svals[1:end-1]; [val]]
+        end
+
+        # out of bounds
+        ind_out1 = (0, 1, 1)[1:N]
+        ind_out2 = (6, 3, 2)[1:N]
+        A = SparseTensorCOO(dims, inds, vals)
+        @test_throws BoundsError A[ind_out1...] = 0
+        @test_throws BoundsError A[ind_out2...] = 0
+    end
+end

@@ -1,6 +1,13 @@
 using SparseTensors
 using Test
 
-@testset "SparseTensors.jl" begin
-    # Write your tests here.
+TESTLIST = [
+    "SparseTensorCOO" => "coo.jl",
+    "SparseTensorDOK" => "dok.jl",
+]
+
+for (name, path) in TESTLIST
+    @testset "$name" begin
+        include(path)
+    end
 end
