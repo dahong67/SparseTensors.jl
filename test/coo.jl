@@ -138,3 +138,44 @@ end
         @test IndexStyle(SparseTensorCOO{Tv,Ti,N}) === IndexCartesian()
     end
 end
+
+## Overloads for specializing outputs
+
+@testset "similar" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        vals = Tv[1, 0, 10]
+        A = SparseTensorCOO(dims, tuple.(inds...), vals)
+
+        # similar(A)
+        S = similar(A)
+        @test typeof(S) === SparseTensorCOO{Tv,Ti,N}
+        @test S.dims === dims
+        @test isempty(S.inds) && isempty(S.vals)
+
+        # similar(A, ::Type{S})
+        for TvNew in [UInt8]
+            S = similar(A, TvNew)
+            @test typeof(S) === SparseTensorCOO{TvNew,Ti,N}
+            @test S.dims === dims
+            @test isempty(S.inds) && isempty(S.vals)
+        end
+
+        # similar(A, dims::Dims)
+        for dimsNew in [(2,), (2, 4), (2, 4, 3)]
+            S = similar(A, dimsNew)
+            @test typeof(S) === SparseTensorCOO{Tv,Ti,length(dimsNew)}
+            @test S.dims === dimsNew
+            @test isempty(S.inds) && isempty(S.vals)
+        end
+
+        # similar(A, ::Type{S}, dims::Dims)
+        for TvNew in [UInt8], dimsNew in [(2,), (2, 4), (2, 4, 3)]
+            S = similar(A, TvNew, dimsNew)
+            @test typeof(S) === SparseTensorCOO{TvNew,Ti,length(dimsNew)}
+            @test S.dims === dimsNew
+            @test isempty(S.inds) && isempty(S.vals)
+        end
+    end
+end

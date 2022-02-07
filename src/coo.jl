@@ -61,6 +61,11 @@ end
 
 IndexStyle(::Type{<:SparseTensorCOO}) = IndexCartesian()
 
+## Overloads for specializing outputs
+
+similar(::SparseTensorCOO{<:Any,Ti}, ::Type{Tv}, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
+    SparseTensorCOO(dims, Vector{NTuple{N,Ti}}(), Vector{Tv}())
+
 ## Utilities
 
 """

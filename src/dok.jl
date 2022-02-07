@@ -40,3 +40,8 @@ function setindex!(A::SparseTensorDOK{Tv,Ti,N}, v, I::Vararg{Int,N}) where {Tv,T
 end
 
 IndexStyle(::Type{<:SparseTensorDOK}) = IndexCartesian()
+
+## Overloads for specializing outputs
+
+similar(::SparseTensorDOK{<:Any,Ti}, ::Type{Tv}, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
+    SparseTensorDOK(dims, Dict{NTuple{N,Ti},Tv}())
