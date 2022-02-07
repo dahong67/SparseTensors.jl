@@ -68,6 +68,13 @@ similar(::SparseTensorCOO{<:Any,Ti}, ::Type{Tv}, dims::Dims{N}) where {Tv,Ti<:In
 
 ## AbstractSparseTensor interface
 
+function dropstored!(f::Function, A::SparseTensorCOO)
+    ptrs = findall(f, A.vals)
+    deleteat!(A.inds, ptrs)
+    deleteat!(A.vals, ptrs)
+    return A
+end
+
 numstored(A::SparseTensorCOO) = length(A.vals)
 storedindices(A::SparseTensorCOO) = A.inds
 storedvalues(A::SparseTensorCOO) = A.vals

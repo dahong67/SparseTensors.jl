@@ -16,7 +16,7 @@ import Base: similar
 export AbstractSparseTensor, SparseTensorCOO, SparseTensorDOK
 
 # AbstractSparseTensor interface
-export numstored, storedindices, storedvalues, storedpairs
+export dropstored!, numstored, storedindices, storedvalues, storedpairs
 
 # Exported functions
 export indtype

@@ -11,6 +11,16 @@ abstract type AbstractSparseTensor{Tv,Ti<:Integer,N} <: AbstractArray{Tv,N} end
 ## AbstractSparseTensor interface
 
 """
+    dropstored!(f::Function, A::AbstractSparseTensor{Tv,Ti,N})
+
+Update sparse tensor `A`, dropping stored entries for which `f` is true.
+The function `f` is passed one argument: the value of the entry.
+
+For example, use `dropstored!(iszero, A)` to drop all numerical zeros.
+"""
+function dropstored! end
+
+"""
     numstored(A::AbstractSparseTensor{Tv,Ti,N})
 
 Return the number of stored entries.

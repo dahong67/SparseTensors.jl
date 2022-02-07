@@ -160,6 +160,25 @@ end
 
 ## AbstractSparseTensor interface
 
+@testset "dropstored!" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        vals = Tv[1, 0, 10]
+        dict = Dict(tuple.(inds...) .=> vals)
+
+        # iszero
+        A = SparseTensorDOK(dims, copy(dict))
+        dropstored!(iszero, A)
+        @test A.dict == Dict((tuple.(inds...) .=> vals)[[1, 3]])
+
+        # beyond tolerance
+        A = SparseTensorDOK(dims, copy(dict))
+        dropstored!(x -> abs(x) > 5, A)
+        @test A.dict == Dict((tuple.(inds...) .=> vals)[1:2])
+    end
+end
+
 @testset "numstored / storedindices / storedvalues / storedpairs" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]

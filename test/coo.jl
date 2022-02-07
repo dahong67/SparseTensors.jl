@@ -182,6 +182,27 @@ end
 
 ## AbstractSparseTensor interface
 
+@testset "dropstored!" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        inds = tuple.(inds...)
+        vals = Tv[1, 0, 10]
+        perm = sortperm(inds)
+        sinds, svals = inds[perm], vals[perm]
+
+        # iszero
+        A = SparseTensorCOO(dims, copy(inds), copy(vals))
+        dropstored!(iszero, A)
+        @test A.inds == sinds[2:3] && A.vals == svals[2:3]
+
+        # beyond tolerance
+        A = SparseTensorCOO(dims, copy(inds), copy(vals))
+        dropstored!(x -> abs(x) > 5, A)
+        @test A.inds == sinds[1:2] && A.vals == svals[1:2]
+    end
+end
+
 @testset "numstored / storedindices / storedvalues / storedpairs" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]

@@ -48,6 +48,11 @@ similar(::SparseTensorDOK{<:Any,Ti}, ::Type{Tv}, dims::Dims{N}) where {Tv,Ti<:In
 
 ## AbstractSparseTensor interface
 
+function dropstored!(f::Function, A::SparseTensorDOK)
+    filter!(p -> !f(p.second), A.dict)
+    return A
+end
+
 numstored(A::SparseTensorDOK) = length(A.dict)
 storedindices(A::SparseTensorDOK) = collect(keys(A.dict))
 storedvalues(A::SparseTensorDOK) = collect(values(A.dict))
