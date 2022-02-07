@@ -203,7 +203,7 @@ end
     end
 end
 
-@testset "numstored / storedindices / storedvalues / storedpairs" begin
+@testset "numstored / stored[indices|values|pairs]" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]
         inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]

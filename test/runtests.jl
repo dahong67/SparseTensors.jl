@@ -9,7 +9,7 @@ TESTLIST = [
 ]
 
 for (name, path) in TESTLIST
-    @testset "$name" begin
+    @testset verbose = true "$name" begin
         include(path)
     end
 end
