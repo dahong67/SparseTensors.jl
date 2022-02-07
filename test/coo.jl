@@ -132,3 +132,9 @@ end
         @test_throws BoundsError A[ind_out2...] = 0
     end
 end
+
+@testset "IndexStyle" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        @test IndexStyle(SparseTensorCOO{Tv,Ti,N}) === IndexCartesian()
+    end
+end
