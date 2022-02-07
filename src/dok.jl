@@ -45,3 +45,10 @@ IndexStyle(::Type{<:SparseTensorDOK}) = IndexCartesian()
 
 similar(::SparseTensorDOK{<:Any,Ti}, ::Type{Tv}, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
     SparseTensorDOK(dims, Dict{NTuple{N,Ti},Tv}())
+
+## AbstractSparseTensor interface
+
+numstored(A::SparseTensorDOK) = length(A.dict)
+storedindices(A::SparseTensorDOK) = collect(keys(A.dict))
+storedvalues(A::SparseTensorDOK) = collect(values(A.dict))
+storedpairs(A::SparseTensorDOK) = pairs(A.dict)

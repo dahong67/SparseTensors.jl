@@ -179,3 +179,22 @@ end
         end
     end
 end
+
+## AbstractSparseTensor interface
+
+@testset "numstored / storedindices / storedvalues / storedpairs" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        inds = tuple.(inds...)
+        vals = Tv[1, 0, 10]
+        perm = sortperm(inds)
+        sinds, svals = inds[perm], vals[perm]
+        A = SparseTensorCOO(dims, inds, vals)
+
+        @test numstored(A) == length(vals)
+        @test typeof(storedindices(A)) === Vector{NTuple{N,Ti}} && storedindices(A) == sinds
+        @test typeof(storedvalues(A)) === Vector{Tv} && storedvalues(A) == svals
+        @test collect(storedpairs(A)) == (sinds .=> svals)
+    end
+end

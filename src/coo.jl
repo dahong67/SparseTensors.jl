@@ -66,6 +66,13 @@ IndexStyle(::Type{<:SparseTensorCOO}) = IndexCartesian()
 similar(::SparseTensorCOO{<:Any,Ti}, ::Type{Tv}, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
     SparseTensorCOO(dims, Vector{NTuple{N,Ti}}(), Vector{Tv}())
 
+## AbstractSparseTensor interface
+
+numstored(A::SparseTensorCOO) = length(A.vals)
+storedindices(A::SparseTensorCOO) = A.inds
+storedvalues(A::SparseTensorCOO) = A.vals
+storedpairs(A::SparseTensorCOO) = Iterators.map(Pair, A.inds, A.vals)
+
 ## Utilities
 
 """
