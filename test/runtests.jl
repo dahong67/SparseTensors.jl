@@ -1,7 +1,9 @@
 using SparseTensors
 using Test
+using InteractiveUtils: subtypes
 
 TESTLIST = [
+    "AbstractSparseTensor" => "abstract.jl",
     "SparseTensorCOO" => "coo.jl",
     "SparseTensorDOK" => "dok.jl",
 ]

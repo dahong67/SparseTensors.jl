@@ -12,6 +12,9 @@ import Base: IndexStyle
 # Exported types
 export AbstractSparseTensor, SparseTensorCOO, SparseTensorDOK
 
+# Exported functions
+export indtype
+
 include("abstract.jl")
 include("coo.jl")
 include("dok.jl")

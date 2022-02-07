@@ -8,6 +8,24 @@ with elements of type `Tv` and indices of type `Ti`.
 """
 abstract type AbstractSparseTensor{Tv,Ti<:Integer,N} <: AbstractArray{Tv,N} end
 
+## Generic methods
+
+"""
+    indtype(T::Type{<:AbstractSparseTensor})
+    indtype(A::AbstractSparseTensor)
+
+Return the index type of a sparse tensor.
+
+# Examples
+```julia-repl
+julia> indtype(AbstractSparseTensor{Float64,Int8,2})
+Int8
+```
+"""
+indtype(::Type{<:AbstractSparseTensor}) = Integer
+indtype(::Type{<:AbstractSparseTensor{<:Any,Ti}}) where {Ti<:Integer} = Ti
+indtype(A::AbstractSparseTensor) = indtype(typeof(A))
+
 ## Utilities
 
 """
