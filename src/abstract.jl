@@ -1,12 +1,12 @@
 ## AbstractSparseTensor type and functions/methods
 
 """
-    AbstractSparseTensor{Tv,Ti,N} <: AbstractArray{Tv,N}
+    AbstractSparseTensor{Tv,Ti<:Integer,N} <: AbstractArray{Tv,N}
 
 Abstract supertype for `N`-dimensional sparse tensors/arrays
 with elements of type `Tv` and indices of type `Ti`.
 """
-abstract type AbstractSparseTensor{Tv,Ti,N} <: AbstractArray{Tv,N} end
+abstract type AbstractSparseTensor{Tv,Ti<:Integer,N} <: AbstractArray{Tv,N} end
 
 ## Utilities
 
