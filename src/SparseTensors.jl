@@ -10,7 +10,7 @@ import Base: size, getindex, setindex!
 import Base: IndexStyle
 
 # Overloads for specializing outputs
-import Base: similar
+import Base: show, summary, similar
 
 # Exported types
 export AbstractSparseTensor, SparseTensorCOO, SparseTensorDOK
