@@ -26,11 +26,11 @@ struct SparseTensorCOO{Tv,Ti<:Integer,N} <: AbstractSparseTensor{Tv,Ti,N}
 end
 function SparseTensorCOO(dims::NTuple{N,Int}, inds::Vector{NTuple{N,Ti}},
                         vals::Vector{Tv}) where {Tv,Ti<:Integer,N}
-    if issorted(inds)
+    if issorted(inds; by = reverse)
         _inds = inds
         _vals = vals
     else
-        perm = sortperm(inds)
+        perm = sortperm(inds; by = reverse)
         _inds = inds[perm]
         _vals = vals[perm]
     end
@@ -43,13 +43,13 @@ size(A::SparseTensorCOO) = A.dims
 
 function getindex(A::SparseTensorCOO{Tv,<:Integer,N}, I::Vararg{Int,N}) where {Tv,N}
     @boundscheck checkbounds(A, I...)
-    ptr = searchsortedfirst(A.inds, I)
+    ptr = searchsortedfirst(A.inds, I; by = reverse)
     return (ptr == length(A.inds) + 1 || A.inds[ptr] != I) ? zero(Tv) : A.vals[ptr]
 end
 
 function setindex!(A::SparseTensorCOO{Tv,Ti,N}, v, I::Vararg{Int,N}) where {Tv,Ti<:Integer,N}
     @boundscheck checkbounds(A, I...)
-    ptr = searchsortedfirst(A.inds, I)
+    ptr = searchsortedfirst(A.inds, I; by = reverse)
     if ptr == length(A.inds) + 1 || A.inds[ptr] != I
         insert!(A.inds, ptr, convert(NTuple{N,Ti}, I))
         insert!(A.vals, ptr, convert(Tv, v))
@@ -100,7 +100,7 @@ end
 
 Check that the indices in `inds` are valid:
 + each index is in bounds (`1 ≤ inds[ptr][k] ≤ dims[k]`)
-+ the indices are sorted (`issorted(inds)`)
++ the indices are sorted (`issorted(inds; by=CartesianIndex)`)
 + the indices are all unique (`allunique(inds`)
 If not, throw an `ArgumentError`.
 """
@@ -113,9 +113,9 @@ function check_coo_inds(dims::NTuple{N,Int}, inds::Vector{NTuple{N,Ti}}) where {
     itr = iterate(inds, state)
     while itr !== nothing
         thisind, state = itr
-        if prevind < thisind
+        if reverse(prevind) < reverse(thisind)
             checkbounds_dims(dims, thisind...)
-        elseif prevind > thisind
+        elseif reverse(prevind) > reverse(thisind)
             throw(ArgumentError("inds are not sorted"))
         else
             throw(ArgumentError("inds are not all unique"))

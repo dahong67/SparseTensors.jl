@@ -6,7 +6,7 @@
         inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
         inds = tuple.(inds...)
         vals = Tv[1, 0, 10]
-        perm = sortperm(inds)
+        perm = sortperm(inds; by = CartesianIndex)
         sinds, svals = inds[perm], vals[perm]
 
         # SparseTensorCOO(dims, inds, vals) - sorted
@@ -36,11 +36,11 @@
         # check_coo_inds(dims, inds) - index in bounds
         if Ti <: Signed
             badinds = (Ti[2, -1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
-            badinds = sort(tuple.(badinds...))
+            badinds = sort(tuple.(badinds...); by = CartesianIndex)
             @test_throws ArgumentError SparseTensorCOO{Tv,Ti,N}(dims, badinds, vals)
         end
         badinds = (Ti[2, 1, 6], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
-        badinds = sort(tuple.(badinds...))
+        badinds = sort(tuple.(badinds...); by = CartesianIndex)
         @test_throws ArgumentError SparseTensorCOO{Tv,Ti,N}(dims, badinds, vals)
 
         # check_coo_inds(dims, inds) - indices sorted
@@ -70,8 +70,8 @@ end
 
 @testset "getindex" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
-        dims = (5, 3, 2)[1:N]
-        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        dims = (6, 3, 2)[1:N]
+        inds = (Ti[5, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
         vals = Tv[1, 0, 10]
         A = SparseTensorCOO(dims, tuple.(inds...), vals)
 
@@ -83,7 +83,7 @@ end
 
         # out of bounds
         ind_out1 = (0, 1, 1)[1:N]
-        ind_out2 = (6, 3, 2)[1:N]
+        ind_out2 = (7, 3, 2)[1:N]
         @test_throws BoundsError A[ind_out1...]
         @test_throws BoundsError A[ind_out2...]
     end
@@ -91,11 +91,11 @@ end
 
 @testset "setindex!" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
-        dims = (5, 3, 2)[1:N]
-        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        dims = (6, 3, 2)[1:N]
+        inds = (Ti[5, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
         inds = tuple.(inds...)
         vals = Tv[1, 0, 10]
-        perm = sortperm(inds)
+        perm = sortperm(inds; by = CartesianIndex)
         sinds, svals = inds[perm], vals[perm]
 
         for val in [-4, 0]
@@ -105,7 +105,8 @@ end
             A[ind...] = val
             @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
             @test A.dims === dims
-            @test A.inds == [sinds[1:2]; [ind]; sinds[3:end]] && A.vals == [svals[1:2]; [val]; svals[3:end]]
+            newperm = sortperm([inds; [ind]]; by = CartesianIndex)
+            @test A.inds == [inds; [ind]][newperm] && A.vals == [vals; [val]][newperm]
 
             # store new value at end
             ind = dims
@@ -121,12 +122,12 @@ end
             A[ind...] = val
             @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
             @test A.dims === dims
-            @test A.inds == sinds && A.vals == [svals[1:end-1]; [val]]
+            @test A.inds == sinds && A.vals == [svals[1:1]; [val]; svals[3:3]]
         end
 
         # out of bounds
         ind_out1 = (0, 1, 1)[1:N]
-        ind_out2 = (6, 3, 2)[1:N]
+        ind_out2 = (7, 3, 2)[1:N]
         A = SparseTensorCOO(dims, inds, vals)
         @test_throws BoundsError A[ind_out1...] = 0
         @test_throws BoundsError A[ind_out2...] = 0
@@ -185,21 +186,19 @@ end
 @testset "dropstored!" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]
-        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        inds = (Ti[2, 3, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
         inds = tuple.(inds...)
         vals = Tv[1, 0, 10]
-        perm = sortperm(inds)
-        sinds, svals = inds[perm], vals[perm]
 
         # iszero
         A = SparseTensorCOO(dims, copy(inds), copy(vals))
         dropstored!(iszero, A)
-        @test A.inds == sinds[2:3] && A.vals == svals[2:3]
+        @test A.inds == inds[[1, 3]] && A.vals == vals[[1, 3]]
 
         # beyond tolerance
         A = SparseTensorCOO(dims, copy(inds), copy(vals))
         dropstored!(x -> abs(x) > 5, A)
-        @test A.inds == sinds[1:2] && A.vals == svals[1:2]
+        @test A.inds == inds[1:2] && A.vals == vals[1:2]
     end
 end
 
@@ -209,7 +208,7 @@ end
         inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
         inds = tuple.(inds...)
         vals = Tv[1, 0, 10]
-        perm = sortperm(inds)
+        perm = sortperm(inds; by = CartesianIndex)
         sinds, svals = inds[perm], vals[perm]
         A = SparseTensorCOO(dims, inds, vals)
 

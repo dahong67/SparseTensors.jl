@@ -14,7 +14,7 @@
         vals = vals[1:nstored]
 
         # SparseTensorCOO
-        perm = sortperm(inds)
+        perm = sortperm(inds; by = CartesianIndex)
         sinds, svals = inds[perm], vals[perm]
         C = SparseTensorCOO(dims, inds, vals)
         @test sprint(show, C) == "SparseTensorCOO{$Tv, $Ti, $N}($dims, $sinds, $svals)"
@@ -38,7 +38,7 @@ end
         vals = vals[1:nstored]
 
         # SparseTensorCOO
-        perm = sortperm(inds)
+        perm = sortperm(inds; by = CartesianIndex)
         sinds, svals = inds[perm], vals[perm]
         C = SparseTensorCOO(dims, inds, vals)
         entrystrs = map(sinds, svals) do ind, val
@@ -81,42 +81,42 @@ end
              \u22ee""",
             6 => """
             5×10×2 SparseTensorCOO{Float32, UInt8, 3} with 7 stored entries:
-              [1,  2, 1]  =  0.5
+              [4,  1, 1]  =  0.0
                           \u22ee""",
             7 => """
             5×10×2 SparseTensorCOO{Float32, UInt8, 3} with 7 stored entries:
-              [1,  2, 1]  =  0.5
+              [4,  1, 1]  =  0.0
                           \u22ee
               [5, 10, 2]  =  0.3""",
             8 => """
             5×10×2 SparseTensorCOO{Float32, UInt8, 3} with 7 stored entries:
+              [4,  1, 1]  =  0.0
               [1,  2, 1]  =  0.5
-              [2,  3, 2]  =  0.4
                           \u22ee
               [5, 10, 2]  =  0.3""",
             9 => """
             5×10×2 SparseTensorCOO{Float32, UInt8, 3} with 7 stored entries:
+              [4,  1, 1]  =  0.0
               [1,  2, 1]  =  0.5
-              [2,  3, 2]  =  0.4
                           \u22ee
-              [5,  4, 1]  =  0.2
+              [2,  6, 2]  =  0.9
               [5, 10, 2]  =  0.3""",
             10 => """
             5×10×2 SparseTensorCOO{Float32, UInt8, 3} with 7 stored entries:
+              [4,  1, 1]  =  0.0
               [1,  2, 1]  =  0.5
-              [2,  3, 2]  =  0.4
-              [2,  6, 2]  =  0.9
-                          \u22ee
               [5,  4, 1]  =  0.2
+                          \u22ee
+              [2,  6, 2]  =  0.9
               [5, 10, 2]  =  0.3""",
             11 => """
             5×10×2 SparseTensorCOO{Float32, UInt8, 3} with 7 stored entries:
+              [4,  1, 1]  =  0.0
               [1,  2, 1]  =  0.5
+              [5,  4, 1]  =  0.2
+              [3,  7, 1]  =  0.8
               [2,  3, 2]  =  0.4
               [2,  6, 2]  =  0.9
-              [3,  7, 1]  =  0.8
-              [4,  1, 1]  =  0.0
-              [5,  4, 1]  =  0.2
               [5, 10, 2]  =  0.3""",
         )[displayheight]
         C = SparseTensorCOO(dims, inds, vals)
