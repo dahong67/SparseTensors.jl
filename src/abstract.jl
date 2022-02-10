@@ -142,7 +142,7 @@ Check that the `dims` tuple and `Ti` index type are valid:
 + corresponding length fits in `Int` (`prod(dims) ≤ typemax(Int)`)
 If not, throw an `ArgumentError`.
 """
-function check_Ti(dims::NTuple{N,Int}, Ti::Type) where {N}
+function check_Ti(dims::Dims{N}, Ti::Type) where {N}
     # Check that dims are nonnegative and fit in Ti
     maxTi = typemax(Ti)
     for k in 1:N
@@ -167,7 +167,7 @@ end
 Return `true` if the specified indices `I` are in bounds for an array
 with the given dimensions `dims`. Useful for checking the inputs to constructors.
 """
-function checkbounds_dims(::Type{Bool}, dims::NTuple{N,Int}, I::Vararg{Integer,N}) where {N}
+function checkbounds_dims(::Type{Bool}, dims::Dims{N}, I::Vararg{Integer,N}) where {N}
     for k in 1:N
         (1 <= I[k] <= dims[k]) || return false
     end
@@ -180,7 +180,7 @@ end
 Throw an error if the specified indices `I` are not in bounds for an array
 with the given dimensions `dims`. Useful for checking the inputs to constructors.
 """
-function checkbounds_dims(dims::NTuple{N,Int}, I::Vararg{Integer,N}) where {N}
+function checkbounds_dims(dims::Dims{N}, I::Vararg{Integer,N}) where {N}
     checkbounds_dims(Bool, dims, I...) ||
         throw(ArgumentError("index (= $I) out of bounds (dims = $dims)"))
     return nothing

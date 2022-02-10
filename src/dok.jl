@@ -7,21 +7,21 @@ Array type for storing sparse tensors in the **D**ictionary **O**f **K**eys form
 Entries are stored as a dictionary mapping indices to values.
 
 Fields:
-+ `dims::NTuple{N,Int}`         : tuple of dimensions
++ `dims::Dims{N}`               : tuple of dimensions
 + `dict::Dict{NTuple{N,Ti},Tv}` : dictionary mapping indices to values
 """
 struct SparseTensorDOK{Tv,Ti<:Integer,N} <: AbstractSparseTensor{Tv,Ti,N}
-    dims::NTuple{N,Int}             # Dimensions
+    dims::Dims{N}                   # Dimensions
     dict::Dict{NTuple{N,Ti},Tv}     # Dictionary
 
-    function SparseTensorDOK{Tv,Ti,N}(dims::NTuple{N,Int},
+    function SparseTensorDOK{Tv,Ti,N}(dims::Dims{N},
                             dict::Dict{NTuple{N,Ti},Tv}) where {Tv,Ti<:Integer,N}
         check_Ti(dims, Ti)
         foreach(ind -> checkbounds_dims(dims, ind...), keys(dict))
         return new(dims, dict)
     end
 end
-SparseTensorDOK(dims::NTuple{N,Int}, dict::Dict{NTuple{N,Ti},Tv}) where {Tv,Ti<:Integer,N} =
+SparseTensorDOK(dims::Dims{N}, dict::Dict{NTuple{N,Ti},Tv}) where {Tv,Ti<:Integer,N} =
     SparseTensorDOK{Tv,Ti,N}(dims, dict)
 
 ## Minimal AbstractArray interface

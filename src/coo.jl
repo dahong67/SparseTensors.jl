@@ -7,16 +7,16 @@ Array type for storing sparse tensors in the **COO**rdinate format.
 Entries are stored as a vector of indices and a vector of values.
 
 Fields:
-+ `dims::NTuple{N,Int}`        : tuple of dimensions
++ `dims::Dims{N}`              : tuple of dimensions
 + `inds::Vector{NTuple{N,Ti}}` : vector of indices
 + `vals::Vector{Tv}`           : vector of values
 """
 struct SparseTensorCOO{Tv,Ti<:Integer,N} <: AbstractSparseTensor{Tv,Ti,N}
-    dims::NTuple{N,Int}             # Dimensions
+    dims::Dims{N}                   # Dimensions
     inds::Vector{NTuple{N,Ti}}      # Stored indices
     vals::Vector{Tv}                # Stored values
 
-    function SparseTensorCOO{Tv,Ti,N}(dims::NTuple{N,Int}, inds::Vector{NTuple{N,Ti}},
+    function SparseTensorCOO{Tv,Ti,N}(dims::Dims{N}, inds::Vector{NTuple{N,Ti}},
                             vals::Vector{Tv}) where {Tv,Ti<:Integer,N}
         check_Ti(dims, Ti)
         check_coo_buffers(inds, vals)
@@ -24,7 +24,7 @@ struct SparseTensorCOO{Tv,Ti<:Integer,N} <: AbstractSparseTensor{Tv,Ti,N}
         return new(dims, inds, vals)
     end
 end
-function SparseTensorCOO(dims::NTuple{N,Int}, inds::Vector{NTuple{N,Ti}},
+function SparseTensorCOO(dims::Dims{N}, inds::Vector{NTuple{N,Ti}},
                         vals::Vector{Tv}) where {Tv,Ti<:Integer,N}
     if issorted(inds; by = reverse)
         _inds = inds
@@ -104,7 +104,7 @@ Check that the indices in `inds` are valid:
 + the indices are all unique (`allunique(inds`)
 If not, throw an `ArgumentError`.
 """
-function check_coo_inds(dims::NTuple{N,Int}, inds::Vector{NTuple{N,Ti}}) where {Ti<:Integer,N}
+function check_coo_inds(dims::Dims{N}, inds::Vector{NTuple{N,Ti}}) where {Ti<:Integer,N}
     # Check all the conditions in a single pass over inds for efficiency
     itr = iterate(inds)
     itr === nothing && return nothing
