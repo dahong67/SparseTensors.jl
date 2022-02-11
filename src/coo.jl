@@ -80,6 +80,11 @@ storedindices(A::SparseTensorCOO) = A.inds
 storedvalues(A::SparseTensorCOO) = A.vals
 storedpairs(A::SparseTensorCOO) = Iterators.map(Pair, A.inds, A.vals)
 
+## AbstractSparseTensor optional interface (internal)
+
+findall_stored(f::Function, A::SparseTensorCOO) =
+    [convert(keytype(A), CartesianIndex(ind)) for (ind, val) in storedpairs(A) if f(val)]
+
 ## Utilities
 
 """

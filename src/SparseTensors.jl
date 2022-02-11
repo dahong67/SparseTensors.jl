@@ -12,6 +12,9 @@ import Base: IndexStyle
 # Overloads for specializing outputs
 import Base: show, summary, similar
 
+# Overloads for improving efficiency
+import Base: findall
+
 # Exported types
 export AbstractSparseTensor, SparseTensorCOO, SparseTensorDOK
 

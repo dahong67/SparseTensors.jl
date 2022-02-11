@@ -202,6 +202,34 @@ end
     end
 end
 
+## Overloads for improving efficiency
+
+@testset "findall" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, UInt8]
+        dims = (10, 3, 2)[1:N]
+        inds = (Ti[2, 5, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        inds = tuple.(inds...)
+        vals = Tv[0, 1, 10]
+
+        # Form tensors
+        C = SparseTensorCOO(dims, inds, vals)
+        D = SparseTensorDOK(dims, Dict(inds .=> vals))
+        A = collect(C)
+
+        # findall(!iszero, A)
+        @test typeof(findall(!iszero, C)) == typeof(findall(!iszero, D)) == typeof(findall(!iszero, A))
+        @test findall(!iszero, C) == findall(!iszero, D) == findall(!iszero, A)
+
+        # findall(in(...), A) - f(0) == false
+        @test typeof(findall(in(Tv[1, 2]), C)) == typeof(findall(in(Tv[1, 2]), D)) == typeof(findall(in(Tv[1, 2]), A))
+        @test findall(in(Tv[1, 2]), C) == findall(in(Tv[1, 2]), D) == findall(in(Tv[1, 2]), A)
+
+        # findall(in(...), A) - f(0) == true
+        @test typeof(findall(in(Tv[0, 1]), C)) == typeof(findall(in(Tv[0, 1]), D)) == typeof(findall(in(Tv[0, 1]), A))
+        @test findall(in(Tv[0, 1]), C) == findall(in(Tv[0, 1]), D) == findall(in(Tv[0, 1]), A)
+    end
+end
+
 ## Generic methods
 
 @testset "indtype" begin

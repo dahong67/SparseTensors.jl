@@ -69,6 +69,13 @@ function summary(io::IO, A::AbstractSparseTensor)
     print(io, " with ", nstored, " stored ", nstored == 1 ? "entry" : "entries")
 end
 
+## Overloads for improving efficiency
+
+findall_pure(f::Function, A::AbstractSparseTensor) =
+    f(zero(eltype(A))) ? invoke(findall, Tuple{Function,AbstractArray}, f, A) : findall_stored(f, A)
+findall(f::typeof(!iszero), A::AbstractSparseTensor) = findall_pure(f, A)
+findall(f::Base.Fix2{typeof(in)}, A::AbstractSparseTensor) = findall_pure(f, A)
+
 ## AbstractSparseTensor interface
 
 """
@@ -113,6 +120,17 @@ Return an iterator over index => value pairs for all the stored entries.
 May share underlying data with `A`.
 """
 function storedpairs end
+
+## AbstractSparseTensor optional interface (internal)
+
+"""
+    findall_stored(f::Function, A::AbstractSparseTensor)
+
+Variant of `findall(f, A)` that searches over only the stored entries.
+Useful when `f(0) == false` is known in advance.
+"""
+findall_stored(f::Function, A::AbstractSparseTensor) =
+    sort!([convert(keytype(A), CartesianIndex(ind)) for (ind, val) in storedpairs(A) if f(val)])
 
 ## Generic methods
 
