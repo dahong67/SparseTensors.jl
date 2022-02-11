@@ -175,7 +175,7 @@ function check_Ti(dims::Dims{N}, Ti::Type) where {N}
     len = reduce(widemul, dims)
     len <= typemax(Int) ||
         throw(ArgumentError("number of elements (length = $len) does not fit in Int (prevents linear indexing)"))
-    # do not need to check that dims[k] <= typemax(Int) for CartesianIndex since eltype(dim) == Int
+    # do not need to check that dims[k] <= typemax(Int) for CartesianIndex since eltype(dims) == Int
 
     return nothing
 end
