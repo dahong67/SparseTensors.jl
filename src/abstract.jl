@@ -73,6 +73,7 @@ end
 
 findall_pure(f::Function, A::AbstractSparseTensor) =
     f(zero(eltype(A))) ? invoke(findall, Tuple{Function,AbstractArray}, f, A) : findall_stored(f, A)
+findall(A::AbstractSparseTensor{Bool}) = findall_pure(identity, A)
 findall(f::typeof(!iszero), A::AbstractSparseTensor) = findall_pure(f, A)
 findall(f::Base.Fix2{typeof(in)}, A::AbstractSparseTensor) = findall_pure(f, A)
 

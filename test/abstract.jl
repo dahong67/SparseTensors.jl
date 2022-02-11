@@ -204,7 +204,23 @@ end
 
 ## Overloads for improving efficiency
 
-@testset "findall" begin
+@testset "findall(A)" begin
+    @testset "N=$N, Ti=$Ti" for N in 1:3, Ti in [Int, UInt8]
+        dims = (10, 3, 2)[1:N]
+        inds = (Ti[2, 5, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
+        inds = tuple.(inds...)
+        vals = Bool[1, 0, 1]
+
+        C = SparseTensorCOO(dims, inds, vals)
+        D = SparseTensorDOK(dims, Dict(inds .=> vals))
+        A = collect(C)
+
+        @test typeof(findall(C)) == typeof(findall(D)) == typeof(findall(A))
+        @test findall(C) == findall(D) == findall(A)
+    end
+end
+
+@testset "findall(f, A)" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, UInt8]
         dims = (10, 3, 2)[1:N]
         inds = (Ti[2, 5, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
