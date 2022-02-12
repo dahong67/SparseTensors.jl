@@ -66,6 +66,22 @@ IndexStyle(::Type{<:SparseTensorCOO}) = IndexCartesian()
 similar(::SparseTensorCOO{<:Any,Ti}, ::Type{Tv}, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
     SparseTensorCOO(dims, Vector{NTuple{N,Ti}}(), Vector{Tv}())
 
+## Overloads for improving efficiency
+
+# technically specializes the output since the state is different
+function iterate(A::AbstractSparseTensor{Tv}, state=((eachindex(A),),1)) where {Tv}
+    idxstate, nextptr = state
+    y = iterate(idxstate...)
+    y === nothing && return nothing
+    if nextptr > length(A.inds) || A.inds[nextptr] != Tuple(y[1])
+        val = zero(Tv)
+    else
+        val = A.vals[nextptr]
+        nextptr += 1
+    end
+    val, ((idxstate[1], Base.tail(y)...), nextptr)
+end
+
 ## AbstractSparseTensor interface
 
 function dropstored!(f::Function, A::SparseTensorCOO)

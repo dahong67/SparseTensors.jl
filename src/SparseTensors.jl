@@ -13,7 +13,7 @@ import Base: IndexStyle
 import Base: show, summary, similar
 
 # Overloads for improving efficiency
-import Base: findall
+import Base: findall, iterate
 
 # Exported types
 export AbstractSparseTensor, SparseTensorCOO, SparseTensorDOK

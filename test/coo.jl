@@ -181,6 +181,61 @@ end
     end
 end
 
+## Overloads for improving efficiency
+
+@testset "iterate" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+        inds = (Ti[2, 4], Ti[1, 2], Ti[1, 2])[1:N]
+        inds = tuple.(inds...)
+        vals = Tv[1, 0]
+        A = SparseTensorCOO(dims, inds, vals)
+
+        # iterate(A)
+        item, state = iterate(A)
+        idxstate, nextptr = state
+        @test typeof(item) === Tv && item == zero(Tv)
+        @test idxstate == (eachindex(A), eachindex(A)[1])
+        @test nextptr == 1
+
+        # iterate(A, state) - stored nonzero
+        item, state = iterate(A, state)
+        idxstate, nextptr = state
+        @test typeof(item) === Tv && item == vals[1]
+        @test idxstate == (eachindex(A), eachindex(A)[2])
+        @test nextptr == 2
+
+        # iterate(A, state) - unstored entries between stored entries
+        for itr in LinearIndices(A)[inds[1]...]+1:LinearIndices(A)[inds[2]...]-1
+            item, state = iterate(A, state)
+            idxstate, nextptr = state
+            @test typeof(item) === Tv && item == zero(Tv)
+            @test idxstate == (eachindex(A), eachindex(A)[itr])
+            @test nextptr == 2
+        end
+
+        # iterate(A, state) - stored zero
+        item, state = iterate(A, state)
+        idxstate, nextptr = state
+        @test typeof(item) === Tv && item == vals[2]
+        @test idxstate == (eachindex(A), eachindex(A)[LinearIndices(A)[inds[2]...]])
+        @test nextptr == 3
+
+        # iterate(A, state) - unstored entries after stored entries
+        for itr in LinearIndices(A)[inds[2]...]+1:length(A)
+            item, state = iterate(A, state)
+            idxstate, nextptr = state
+            @test typeof(item) === Tv && item == zero(Tv)
+            @test idxstate == (eachindex(A), eachindex(A)[itr])
+            @test nextptr == 3
+        end
+
+        # iterate(A, state) - finished
+        state = iterate(A, state)
+        @test state === nothing
+    end
+end
+
 ## AbstractSparseTensor interface
 
 @testset "dropstored!" begin
