@@ -83,7 +83,11 @@ end
             A[ind...] = val
             @test typeof(A) === SparseTensorDOK{Tv,Ti,N}
             @test A.dims === dims
-            @test A.dict == Dict([(tuple.(inds...) .=> vals); [ind => val]])
+            if iszero(val)
+                @test A.dict == Dict(tuple.(inds...) .=> vals)
+            else
+                @test A.dict == Dict([(tuple.(inds...) .=> vals); [ind => val]])
+            end
 
             # store new value at end
             ind = dims
@@ -91,7 +95,11 @@ end
             A[ind...] = val
             @test typeof(A) === SparseTensorDOK{Tv,Ti,N}
             @test A.dims === dims
-            @test A.dict == Dict([(tuple.(inds...) .=> vals); [ind => val]])
+            if iszero(val)
+                @test A.dict == Dict(tuple.(inds...) .=> vals)
+            else
+                @test A.dict == Dict([(tuple.(inds...) .=> vals); [ind => val]])
+            end
 
             # overwrite existing value
             ind = (4, 2, 1)[1:N]

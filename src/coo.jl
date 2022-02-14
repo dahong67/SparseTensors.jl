@@ -51,8 +51,10 @@ function setindex!(A::SparseTensorCOO{Tv,Ti,N}, v, I::Vararg{Int,N}) where {Tv,T
     @boundscheck checkbounds(A, I...)
     ptr = searchsortedfirst(A.inds, I; by = reverse)
     if ptr == length(A.inds) + 1 || A.inds[ptr] != I
-        insert!(A.inds, ptr, convert(NTuple{N,Ti}, I))
-        insert!(A.vals, ptr, convert(Tv, v))
+        if !iszero(v)
+            insert!(A.inds, ptr, convert(NTuple{N,Ti}, I))
+            insert!(A.vals, ptr, convert(Tv, v))
+        end
     else
         A.vals[ptr] = convert(Tv, v)
     end

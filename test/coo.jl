@@ -105,8 +105,12 @@ end
             A[ind...] = val
             @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
             @test A.dims === dims
-            newperm = sortperm([inds; [ind]]; by = CartesianIndex)
-            @test A.inds == [inds; [ind]][newperm] && A.vals == [vals; [val]][newperm]
+            if iszero(val)
+                @test A.inds == sinds && A.vals == svals
+            else
+                newperm = sortperm([inds; [ind]]; by = CartesianIndex)
+                @test A.inds == [inds; [ind]][newperm] && A.vals == [vals; [val]][newperm]
+            end
 
             # store new value at end
             ind = dims
@@ -114,7 +118,11 @@ end
             A[ind...] = val
             @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
             @test A.dims === dims
-            @test A.inds == [sinds; [ind]] && A.vals == [svals; [val]]
+            if iszero(val)
+                @test A.inds == sinds && A.vals == svals
+            else
+                @test A.inds == [sinds; [ind]] && A.vals == [svals; [val]]
+            end
 
             # overwrite existing value
             ind = (4, 2, 1)[1:N]
