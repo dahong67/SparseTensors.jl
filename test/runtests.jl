@@ -8,8 +8,6 @@ TESTLIST = [
     "SparseTensorDOK" => "dok.jl",
 ]
 
-for (name, path) in TESTLIST
-    @testset verbose = true "$name" begin
-        include(path)
-    end
+@testset verbose = true "$name" for (name, path) in TESTLIST
+    include(path)
 end
