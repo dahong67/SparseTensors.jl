@@ -71,7 +71,7 @@ similar(::SparseTensorCOO{<:Any,Ti}, ::Type{Tv}, dims::Dims{N}) where {Tv,Ti<:In
 ## Overloads for improving efficiency
 
 # technically specializes the output since the state is different
-function iterate(A::AbstractSparseTensor{Tv}, state=((eachindex(A),),1)) where {Tv}
+function iterate(A::SparseTensorCOO{Tv}, state=((eachindex(A),),1)) where {Tv}
     idxstate, nextptr = state
     y = iterate(idxstate...)
     y === nothing && return nothing
