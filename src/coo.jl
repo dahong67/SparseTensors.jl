@@ -3,8 +3,9 @@
 """
     SparseTensorCOO{Tv,Ti<:Integer,N} <: AbstractSparseTensor{Tv,Ti,N}
 
-Array type for storing sparse tensors in the **COO**rdinate format.
-Entries are stored as a vector of indices and a vector of values.
+`N`-dimensional sparse tensor stored in the **COO**rdinate format.
+Elements are stored as a vector of indices (using type `Ti`)
+and a vector of values (of type `Tv`).
 
 Fields:
 + `dims::Dims{N}`              : tuple of dimensions

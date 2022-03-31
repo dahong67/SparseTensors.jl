@@ -1,7 +1,8 @@
 # Top-level file
 
 """
-Support for sparse tensors/arrays. Provides `AbstractSparseTensor` and subtypes.
+Support for sparse tensors (i.e., multi-dimensional arrays).
+Provides `AbstractSparseTensor` and subtypes.
 """
 module SparseTensors
 

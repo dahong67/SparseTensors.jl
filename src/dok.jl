@@ -3,8 +3,8 @@
 """
     SparseTensorDOK{Tv,Ti<:Integer,N} <: AbstractSparseTensor{Tv,Ti,N}
 
-Array type for storing sparse tensors in the **D**ictionary **O**f **K**eys format.
-Entries are stored as a dictionary mapping indices to values.
+`N`-dimensional sparse tensor stored in the **D**ictionary **O**f **K**eys format.
+Elements are stored as a dictionary mapping indices (using type `Ti`) to values (of type `Tv`).
 
 Fields:
 + `dims::Dims{N}`               : tuple of dimensions
