@@ -168,7 +168,7 @@ function check_Ti(dims::Dims{N}, Ti::Type) where {N}
         dim = dims[k]
         dim >= 0 || throw(ArgumentError("the size along dimension $k (dims[$k] = $dim) is negative"))
         dim <= maxTi ||
-            throw(ArgumentError("the size along dimension $k (dims[$k] = $dim) does not fit in Ti = $(Ti)"))
+            throw(ArgumentError("the size along dimension $k (dims[$k] = $dim) does not fit in Ti = $(Ti) (typemax($Ti) = $(typemax(Ti)))"))
     end
 
     # Check that corresponding length fits in Int
