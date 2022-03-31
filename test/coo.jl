@@ -140,6 +140,16 @@ end
         @test_throws BoundsError A[ind_out1...] = 0
         @test_throws BoundsError A[ind_out2...] = 0
     end
+
+    # properly handle error during value conversion
+    dims = (5, 3, 2)
+    inds = sort(tuple.([2, 1, 4], [1, 3, 2], [1, 2, 1]); by = CartesianIndex)
+    vals = [1, 0, 10]
+    A = SparseTensorCOO(dims, copy(inds), copy(vals))
+    @test_throws InexactError A[1, 1, 1] = 1.2
+    @test A.inds !== inds && A.vals !== vals
+    @test A.inds == inds
+    @test A.vals == vals
 end
 
 @testset "IndexStyle" begin

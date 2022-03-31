@@ -35,8 +35,9 @@ end
 
 function setindex!(A::SparseTensorDOK{Tv,Ti,N}, v, I::Vararg{Int,N}) where {Tv,Ti<:Integer,N}
     @boundscheck checkbounds(A, I...)
-    if !iszero(v) || haskey(A.dict, I)
-        A.dict[convert(NTuple{N,Ti}, I)] = convert(Tv, v)
+    ind, val = convert(NTuple{N,Ti}, I), convert(Tv, v)
+    if !iszero(val) || haskey(A.dict, ind)
+        A.dict[ind] = val
     end
     return A
 end
