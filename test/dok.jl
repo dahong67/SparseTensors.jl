@@ -32,6 +32,24 @@
     end
 end
 
+@testset "undef constructors" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+
+        # SparseTensorDOK{Tv,Ti,N}(undef, dims)
+        A = SparseTensorDOK{Tv,Ti,N}(undef, dims)
+        @test typeof(A) === SparseTensorDOK{Tv,Ti,N}
+        @test A.dims === dims
+        @test A.dict == Dict{NTuple{N,Ti},Tv}()
+
+        # SparseTensorDOK{Tv,Ti}(undef, dims)
+        A = SparseTensorDOK{Tv,Ti}(undef, dims)
+        @test typeof(A) === SparseTensorDOK{Tv,Ti,N}
+        @test A.dims === dims
+        @test A.dict == Dict{NTuple{N,Ti},Tv}()
+    end
+end
+
 ## Minimal AbstractArray interface
 
 @testset "size" begin

@@ -38,6 +38,34 @@ function SparseTensorCOO(dims::Dims{N}, inds::Vector{NTuple{N,Ti}},
     SparseTensorCOO{Tv,Ti,N}(dims, _inds, _vals)
 end
 
+"""
+    SparseTensorCOO{Tv,Ti<:Integer}(undef, dims)
+    SparseTensorCOO{Tv,Ti<:Integer,N}(undef, dims)
+
+Construct an uninitialized `N`-dimensional `SparseTensorCOO`
+with indices using type `Ti` and elements of type `Tv`.
+Here uninitialized means it has no stored entries.
+
+Here `undef` is the `UndefInitializer`. If `N` is supplied,
+then it must match the length of `dims`.
+
+# Examples
+```julia-repl
+julia> A = SparseTensorCOO{Float64, Int8, 3}(undef, (2, 3, 4)) # N given explicitly
+2×3×4 SparseTensorCOO{Float64, Int8, 3} with 0 stored entries
+
+julia> B = SparseTensorCOO{Float64, Int8}(undef, (4,)) # N determined by the input
+4-element SparseTensorCOO{Float64, Int8, 1} with 0 stored entries
+
+julia> similar(B, 2, 4, 1) # use typeof(B), and the given size
+2×4×1 SparseTensorCOO{Float64, Int8, 3} with 0 stored entries
+```
+"""
+SparseTensorCOO{Tv,Ti,N}(::UndefInitializer, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
+    SparseTensorCOO(dims, Vector{NTuple{N,Ti}}(), Vector{Tv}())
+SparseTensorCOO{Tv,Ti}(::UndefInitializer, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
+    SparseTensorCOO{Tv,Ti,N}(undef, dims)
+
 ## Minimal AbstractArray interface
 
 size(A::SparseTensorCOO) = A.dims
@@ -68,7 +96,7 @@ IndexStyle(::Type{<:SparseTensorCOO}) = IndexCartesian()
 ## Overloads for specializing outputs
 
 similar(::SparseTensorCOO{<:Any,Ti}, ::Type{Tv}, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
-    SparseTensorCOO(dims, Vector{NTuple{N,Ti}}(), Vector{Tv}())
+    SparseTensorCOO{Tv,Ti,N}(undef, dims)
 
 ## Overloads for improving efficiency
 

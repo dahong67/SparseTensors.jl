@@ -24,6 +24,34 @@ end
 SparseTensorDOK(dims::Dims{N}, dict::Dict{NTuple{N,Ti},Tv}) where {Tv,Ti<:Integer,N} =
     SparseTensorDOK{Tv,Ti,N}(dims, dict)
 
+"""
+    SparseTensorDOK{Tv,Ti<:Integer}(undef, dims)
+    SparseTensorDOK{Tv,Ti<:Integer,N}(undef, dims)
+
+Construct an uninitialized `N`-dimensional `SparseTensorDOK`
+with indices using type `Ti` and elements of type `Tv`.
+Here uninitialized means it has no stored entries.
+
+Here `undef` is the `UndefInitializer`. If `N` is supplied,
+then it must match the length of `dims`.
+
+# Examples
+```julia-repl
+julia> A = SparseTensorDOK{Float64, Int8, 3}(undef, (2, 3, 4)) # N given explicitly
+2×3×4 SparseTensorDOK{Float64, Int8, 3} with 0 stored entries
+
+julia> B = SparseTensorDOK{Float64, Int8}(undef, (4,)) # N determined by the input
+4-element SparseTensorDOK{Float64, Int8, 1} with 0 stored entries
+
+julia> similar(B, 2, 4, 1) # use typeof(B), and the given size
+2×4×1 SparseTensorDOK{Float64, Int8, 3} with 0 stored entries
+```
+"""
+SparseTensorDOK{Tv,Ti,N}(::UndefInitializer, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
+    SparseTensorDOK(dims, Dict{NTuple{N,Ti},Tv}())
+SparseTensorDOK{Tv,Ti}(::UndefInitializer, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
+    SparseTensorDOK{Tv,Ti,N}(undef, dims)
+
 ## Minimal AbstractArray interface
 
 size(A::SparseTensorDOK) = A.dims
@@ -47,7 +75,7 @@ IndexStyle(::Type{<:SparseTensorDOK}) = IndexCartesian()
 ## Overloads for specializing outputs
 
 similar(::SparseTensorDOK{<:Any,Ti}, ::Type{Tv}, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
-    SparseTensorDOK(dims, Dict{NTuple{N,Ti},Tv}())
+    SparseTensorDOK{Tv,Ti,N}(undef, dims)
 
 ## AbstractSparseTensor interface
 

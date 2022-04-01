@@ -51,6 +51,26 @@
     end
 end
 
+@testset "undef constructors" begin
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+
+        # SparseTensorCOO{Tv,Ti,N}(undef, dims)
+        A = SparseTensorCOO{Tv,Ti,N}(undef, dims)
+        @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
+        @test A.dims === dims
+        @test A.inds == Vector{NTuple{N,Ti}}()
+        @test A.vals == Vector{Tv}()
+
+        # SparseTensorCOO{Tv,Ti}(undef, dims)
+        A = SparseTensorCOO{Tv,Ti}(undef, dims)
+        @test typeof(A) === SparseTensorCOO{Tv,Ti,N}
+        @test A.dims === dims
+        @test A.inds == Vector{NTuple{N,Ti}}()
+        @test A.vals == Vector{Tv}()
+    end
+end
+
 ## Minimal AbstractArray interface
 
 @testset "size" begin
