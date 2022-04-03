@@ -67,21 +67,21 @@ SparseTensorCOO{Tv,Ti}(::UndefInitializer, dims::Dims{N}) where {Tv,Ti<:Integer,
     SparseTensorCOO{Tv,Ti,N}(undef, dims)
 
 """
-    SparseTensorCOO([Ti=Int], A::AbstractArray)
+    SparseTensorCOO(Ti, A::AbstractArray)
 
 Convert an AbstractArray `A` into a `SparseTensorCOO`
-with indices using type `Ti` (default value is `Int`).
+with indices using type `Ti`.
 
 # Examples
 ```julia-repl
-julia> A = SparseTensorCOO(Float16[1.1 0.0 0.0; 2.1 0.0 2.3])
-2×3 SparseTensorCOO{Float16, Int64, 2} with 3 stored entries:
+julia> A = SparseTensorCOO(Int8, Float16[1.1 0.0 0.0; 2.1 0.0 2.3])
+2×3 SparseTensorCOO{Float16, Int8, 2} with 3 stored entries:
   [1, 1]  =  1.1
   [2, 1]  =  2.1
   [2, 3]  =  2.3
 
-julia> B = SparseTensorCOO(Int8, Float16[1.1 0.0 0.0; 2.1 0.0 2.3])
-2×3 SparseTensorCOO{Float16, Int8, 2} with 3 stored entries:
+julia> B = SparseTensorCOO(Int16, Float16[1.1 0.0 0.0; 2.1 0.0 2.3])
+2×3 SparseTensorCOO{Float16, Int16, 2} with 3 stored entries:
   [1, 1]  =  1.1
   [2, 1]  =  2.1
   [2, 3]  =  2.3
@@ -95,7 +95,6 @@ function SparseTensorCOO(Ti::Type{<:Integer}, A::AbstractArray)
     vals = convert(Vector{Tv}, A[nzidx])
     SparseTensorCOO{Tv,Ti,N}(dims, inds, vals)
 end
-SparseTensorCOO(A::AbstractArray) = SparseTensorCOO(Int, A)
 
 ## Minimal AbstractArray interface
 

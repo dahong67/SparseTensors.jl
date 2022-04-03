@@ -72,45 +72,26 @@ end
 end
 
 @testset "AbstractArray constructor" begin
-    @testset "N=$N, Tv=$Tv" for N in 1:3, Tv in [Float64, BigFloat, Int8]
+    @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]
-        inds = ([2, 1, 4], [1, 3, 2], [1, 2, 1])[1:N]
+        inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
         inds = sort(tuple.(inds...); by=CartesianIndex)
         vals = Tv[1, 100, 10]
 
-        # SparseTensorCOO(A::Array)
+        # SparseTensorCOO(Ti, A::Array)
         A = zeros(Tv, dims)
         A[CartesianIndex.(inds)] = vals
-        C = SparseTensorCOO(A)
-        @test typeof(C) === SparseTensorCOO{Tv,Int,N}
+        C = SparseTensorCOO(Ti, A)
+        @test typeof(C) === SparseTensorCOO{Tv,Ti,N}
         @test C.dims === dims
         @test C.inds == inds && C.vals == vals
 
-        # SparseTensorCOO(A::SparseTensorDOK)
+        # SparseTensorCOO(Ti, A::SparseTensorDOK)
         D = SparseTensorDOK(dims, Dict(inds .=> vals))
-        C = SparseTensorCOO(D)
-        @test typeof(C) === SparseTensorCOO{Tv,Int,N}
+        C = SparseTensorCOO(Ti, D)
+        @test typeof(C) === SparseTensorCOO{Tv,Ti,N}
         @test C.dims === dims
         @test C.inds == inds && C.vals == vals
-
-        @testset "Ti=$Ti" for Ti in [Int, UInt8]
-            indsTi = convert(Vector{NTuple{N,Ti}}, inds)
-
-            # SparseTensorCOO(Ti, A::Array)
-            A = zeros(Tv, dims)
-            A[CartesianIndex.(inds)] = vals
-            C = SparseTensorCOO(Ti, A)
-            @test typeof(C) === SparseTensorCOO{Tv,Ti,N}
-            @test C.dims === dims
-            @test C.inds == indsTi && C.vals == vals
-
-            # SparseTensorCOO(Ti, A::SparseTensorDOK)
-            D = SparseTensorDOK(dims, Dict(inds .=> vals))
-            C = SparseTensorCOO(Ti, D)
-            @test typeof(C) === SparseTensorCOO{Tv,Ti,N}
-            @test C.dims === dims
-            @test C.inds == indsTi && C.vals == vals
-        end
     end
 end
 

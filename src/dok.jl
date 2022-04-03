@@ -53,21 +53,21 @@ SparseTensorDOK{Tv,Ti}(::UndefInitializer, dims::Dims{N}) where {Tv,Ti<:Integer,
     SparseTensorDOK{Tv,Ti,N}(undef, dims)
 
 """
-    SparseTensorDOK([Ti=Int], A::AbstractArray)
+    SparseTensorDOK(Ti, A::AbstractArray)
 
 Convert an AbstractArray `A` into a `SparseTensorDOK`
-with indices using type `Ti` (default value is `Int`).
+with indices using type `Ti`.
 
 # Examples
 ```julia-repl
-julia> A = SparseTensorDOK(Float16[1.1 0.0 0.0; 2.1 0.0 2.3])
-2×3 SparseTensorDOK{Float16, Int64, 2} with 3 stored entries:
+julia> A = SparseTensorDOK(Int8, Float16[1.1 0.0 0.0; 2.1 0.0 2.3])
+2×3 SparseTensorDOK{Float16, Int8, 2} with 3 stored entries:
   [1, 1]  =  1.1
   [2, 1]  =  2.1
   [2, 3]  =  2.3
 
-julia> B = SparseTensorDOK(Int8, Float16[1.1 0.0 0.0; 2.1 0.0 2.3])
-2×3 SparseTensorDOK{Float16, Int8, 2} with 3 stored entries:
+julia> B = SparseTensorDOK(Int16, Float16[1.1 0.0 0.0; 2.1 0.0 2.3])
+2×3 SparseTensorDOK{Float16, Int16, 2} with 3 stored entries:
   [1, 1]  =  1.1
   [2, 1]  =  2.1
   [2, 3]  =  2.3
@@ -81,7 +81,6 @@ function SparseTensorDOK(Ti::Type{<:Integer}, A::AbstractArray)
     vals = convert(Vector{Tv}, A[nzidx])
     SparseTensorDOK{Tv,Ti,N}(dims, Dict(inds .=> vals))
 end
-SparseTensorDOK(A::AbstractArray) = SparseTensorDOK(Int, A)
 
 ## Minimal AbstractArray interface
 
