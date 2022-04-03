@@ -50,6 +50,51 @@ end
     end
 end
 
+@testset "AbstractArray constructor" begin
+    @testset "N=$N, Tv=$Tv" for N in 1:3, Tv in [Float64, BigFloat, Int8]
+        dims = (5, 3, 2)[1:N]
+        inds = ([2, 1, 4], [1, 3, 2], [1, 2, 1])[1:N]
+        inds = sort(tuple.(inds...); by=CartesianIndex)
+        vals = Tv[1, 100, 10]
+        dict = Dict(inds .=> vals)
+
+        # SparseTensorDOK(A::Array)
+        A = zeros(Tv, dims)
+        A[CartesianIndex.(inds)] = vals
+        D = SparseTensorDOK(A)
+        @test typeof(D) === SparseTensorDOK{Tv,Int,N}
+        @test D.dims === dims
+        @test D.dict == dict
+
+        # SparseTensorDOK(A::SparseTensorCOO)
+        C = SparseTensorCOO(dims, inds, vals)
+        D = SparseTensorDOK(C)
+        @test typeof(D) === SparseTensorDOK{Tv,Int,N}
+        @test D.dims === dims
+        @test D.dict == dict
+
+        @testset "Ti=$Ti" for Ti in [Int, UInt8]
+            indsTi = convert(Vector{NTuple{N,Ti}}, inds)
+            dictTi = Dict(indsTi .=> vals)
+
+            # SparseTensorDOK(Ti, A::Array)
+            A = zeros(Tv, dims)
+            A[CartesianIndex.(inds)] = vals
+            D = SparseTensorDOK(Ti, A)
+            @test typeof(D) === SparseTensorDOK{Tv,Ti,N}
+            @test D.dims === dims
+            @test D.dict == dictTi
+
+            # SparseTensorDOK(Ti, A::SparseTensorCOO)
+            C = SparseTensorCOO(dims, inds, vals)
+            D = SparseTensorDOK(Ti, C)
+            @test typeof(D) === SparseTensorDOK{Tv,Ti,N}
+            @test D.dims === dims
+            @test D.dict == dictTi
+        end
+    end
+end
+
 ## Minimal AbstractArray interface
 
 @testset "size" begin

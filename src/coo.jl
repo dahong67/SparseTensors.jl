@@ -66,6 +66,37 @@ SparseTensorCOO{Tv,Ti,N}(::UndefInitializer, dims::Dims{N}) where {Tv,Ti<:Intege
 SparseTensorCOO{Tv,Ti}(::UndefInitializer, dims::Dims{N}) where {Tv,Ti<:Integer,N} =
     SparseTensorCOO{Tv,Ti,N}(undef, dims)
 
+"""
+    SparseTensorCOO([Ti=Int], A::AbstractArray)
+
+Convert an AbstractArray `A` into a `SparseTensorCOO`
+with indices using type `Ti` (default value is `Int`).
+
+# Examples
+```julia-repl
+julia> A = SparseTensorCOO(Float16[1.1 0.0 0.0; 2.1 0.0 2.3])
+2×3 SparseTensorCOO{Float16, Int64, 2} with 3 stored entries:
+  [1, 1]  =  1.1
+  [2, 1]  =  2.1
+  [2, 3]  =  2.3
+
+julia> B = SparseTensorCOO(Int8, Float16[1.1 0.0 0.0; 2.1 0.0 2.3])
+2×3 SparseTensorCOO{Float16, Int8, 2} with 3 stored entries:
+  [1, 1]  =  1.1
+  [2, 1]  =  2.1
+  [2, 3]  =  2.3
+```
+"""
+function SparseTensorCOO(Ti::Type{<:Integer}, A::AbstractArray)
+    Tv, N = eltype(A), ndims(A)
+    dims = size(A)
+    nzidx = findall(!iszero, A)
+    inds = convert(Vector{NTuple{N,Ti}}, CartesianIndices(A)[nzidx])
+    vals = convert(Vector{Tv}, A[nzidx])
+    SparseTensorCOO{Tv,Ti,N}(dims, inds, vals)
+end
+SparseTensorCOO(A::AbstractArray) = SparseTensorCOO(Int, A)
+
 ## Minimal AbstractArray interface
 
 size(A::SparseTensorCOO) = A.dims
