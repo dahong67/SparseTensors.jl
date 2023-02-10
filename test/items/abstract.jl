@@ -2,7 +2,7 @@
 
 ## Overloads for specializing outputs
 
-@testset "show(io, A)" begin
+@testitem "show(io, A)" begin
     @testset "nstored=$nstored, N=$N, Ti=$Ti, Tv=$Tv" for nstored in 0:3, N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, UInt8]
         dims = (10, 3, 2)[1:N]
         inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -17,16 +17,16 @@
         perm = sortperm(inds; by = CartesianIndex)
         sinds, svals = inds[perm], vals[perm]
         C = SparseTensorCOO(dims, inds, vals)
-        @test sprint(show, C) == "SparseTensorCOO{$Tv, $Ti, $N}($dims, $sinds, $svals)"
+        @test sprint(show, C; context=:module=>@__MODULE__) == "SparseTensorCOO{$Tv, $Ti, $N}($dims, $sinds, $svals)"
 
         # SparseTensorDOK
         dict = Dict(inds .=> vals)
         D = SparseTensorDOK(dims, dict)
-        @test sprint(show, D) == "SparseTensorDOK{$Tv, $Ti, $N}($dims, $dict)"
+        @test sprint(show, D; context=:module=>@__MODULE__) == "SparseTensorDOK{$Tv, $Ti, $N}($dims, $dict)"
     end
 end
 
-@testset "show(io, ::MIME\"text/plain\", A)" begin
+@testitem "show(io, ::MIME\"text/plain\", A)" begin
     @testset "nstored=$nstored, N=$N, Ti=$Ti, Tv=$Tv" for nstored in 0:3, N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, UInt8]
         dims = (10, 3, 2)[1:N]
         inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -120,7 +120,7 @@ end
               [5, 10, 2]  =  0.3""",
         )[displayheight]
         C = SparseTensorCOO(dims, inds, vals)
-        @test sprint(show, MIME("text/plain"), C; context = iocontext) == showstr
+        @test sprint(show, MIME("text/plain"), C; context = IOContext(iocontext, :module=>@__MODULE__)) == showstr
 
         # SparseTensorDOK
         showstr = Dict(
@@ -173,11 +173,11 @@ end
               [5,  4, 1]  =  0.2""",
         )[displayheight]
         D = SparseTensorDOK(dims, Dict(inds .=> vals))
-        @test sprint(show, MIME("text/plain"), D; context = iocontext) == showstr
+        @test sprint(show, MIME("text/plain"), D; context = IOContext(iocontext, :module=>@__MODULE__)) == showstr
     end
 end
 
-@testset "summary(io, A)" begin
+@testitem "summary(io, A)" begin
     @testset "nstored=$nstored, N=$N, Ti=$Ti, Tv=$Tv" for nstored in 0:3, N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, UInt8]
         dims = (10, 3, 2)[1:N]
         inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -194,17 +194,17 @@ end
 
         # SparseTensorCOO
         C = SparseTensorCOO(dims, inds, vals)
-        @test sprint(summary, C) == "$(dimstr[N]) SparseTensorCOO{$Tv, $Ti, $N} $valstr"
+        @test sprint(summary, C; context=:module=>@__MODULE__) == "$(dimstr[N]) SparseTensorCOO{$Tv, $Ti, $N} $valstr"
 
         # SparseTensorDOK
         D = SparseTensorDOK(dims, Dict(inds .=> vals))
-        @test sprint(summary, D) == "$(dimstr[N]) SparseTensorDOK{$Tv, $Ti, $N} $valstr"
+        @test sprint(summary, D; context=:module=>@__MODULE__) == "$(dimstr[N]) SparseTensorDOK{$Tv, $Ti, $N} $valstr"
     end
 end
 
 ## Overloads for improving efficiency
 
-@testset "findall(A)" begin
+@testitem "findall(A)" begin
     @testset "N=$N, Ti=$Ti" for N in 1:3, Ti in [Int, UInt8]
         dims = (10, 3, 2)[1:N]
         inds = (Ti[2, 5, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -220,7 +220,7 @@ end
     end
 end
 
-@testset "findall(f, A)" begin
+@testitem "findall(f, A)" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, UInt8]
         dims = (10, 3, 2)[1:N]
         inds = (Ti[2, 5, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -248,7 +248,9 @@ end
 
 ## Generic methods
 
-@testset "indtype" begin
+@testitem "indtype" begin
+    using InteractiveUtils: subtypes
+
     # indtype(T::Type{<:AbstractSparseTensor})
     @testset "T::Type{<:AbstractSparseTensor}" begin
         AT = AbstractSparseTensor

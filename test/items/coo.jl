@@ -1,6 +1,6 @@
 ## SparseTensorCOO: coordinate format
 
-@testset "constructor" begin
+@testitem "constructor" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]
         inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -51,7 +51,7 @@
     end
 end
 
-@testset "undef constructors" begin
+@testitem "undef constructors" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]
 
@@ -71,7 +71,7 @@ end
     end
 end
 
-@testset "AbstractArray constructor" begin
+@testitem "AbstractArray constructor" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]
         inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -97,7 +97,7 @@ end
 
 ## Minimal AbstractArray interface
 
-@testset "size" begin
+@testitem "size" begin
     @testset "N=$N" for N in 1:3
         dims = (5, 3, 2)[1:N]
         inds = ([2, 1, 4], [1, 3, 2], [1, 2, 1])[1:N]
@@ -112,7 +112,7 @@ end
     end
 end
 
-@testset "getindex" begin
+@testitem "getindex" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (6, 3, 2)[1:N]
         inds = (Ti[5, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -133,7 +133,7 @@ end
     end
 end
 
-@testset "setindex!" begin
+@testitem "setindex!" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (6, 3, 2)[1:N]
         inds = (Ti[5, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -196,7 +196,7 @@ end
     @test A.vals == vals
 end
 
-@testset "IndexStyle" begin
+@testitem "IndexStyle" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         @test IndexStyle(SparseTensorCOO{Tv,Ti,N}) === IndexCartesian()
     end
@@ -204,7 +204,7 @@ end
 
 ## Overloads for specializing outputs
 
-@testset "similar" begin
+@testitem "similar" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]
         inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -245,7 +245,7 @@ end
 
 ## Overloads for improving efficiency
 
-@testset "iterate" begin
+@testitem "iterate" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]
         inds = (Ti[2, 4], Ti[1, 2], Ti[1, 2])[1:N]
@@ -300,7 +300,7 @@ end
 
 ## AbstractSparseTensor interface
 
-@testset "dropstored!" begin
+@testitem "dropstored!" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]
         inds = (Ti[2, 3, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
@@ -319,7 +319,7 @@ end
     end
 end
 
-@testset "numstored / stored[indices|values|pairs]" begin
+@testitem "numstored / stored[indices|values|pairs]" begin
     @testset "N=$N, Ti=$Ti, Tv=$Tv" for N in 1:3, Ti in [Int, UInt8], Tv in [Float64, BigFloat, Int8]
         dims = (5, 3, 2)[1:N]
         inds = (Ti[2, 1, 4], Ti[1, 3, 2], Ti[1, 2, 1])[1:N]
