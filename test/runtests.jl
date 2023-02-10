@@ -3,9 +3,9 @@ using Test
 using InteractiveUtils: subtypes
 
 TESTLIST = [
-    "AbstractSparseTensor" => "abstract.jl",
-    "SparseTensorCOO" => "coo.jl",
-    "SparseTensorDOK" => "dok.jl",
+    "AbstractSparseTensor" => "items/abstract.jl",
+    "SparseTensorCOO" => "items/coo.jl",
+    "SparseTensorDOK" => "items/dok.jl",
 ]
 
 @testset verbose = true "$name" for (name, path) in TESTLIST
